@@ -1,14 +1,15 @@
 import PropTypes from 'prop-types';
 import FeedbackItem from './FeedbackItem';
 
-function FeedbackList({ feedbacks }) {
+function FeedbackList({ feedbacks, handleDelete }) {
+  // Conditional Rendering
   if (!feedbacks || feedbacks.length <= 0) {
     return <p>No Feedbacks yet.</p>;
   }
   return (
     <div className="feedback-list">
       {feedbacks.map(feedback => {
-        return <FeedbackItem key={feedback.id} item={feedback} />;
+        return <FeedbackItem key={feedback.id} item={feedback} handleDelete={handleDelete} />;
       })}
     </div>
   );
