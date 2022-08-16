@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import FeedbackItem from './FeedbackItem';
 
 function FeedbackList({ feedbacks }) {
@@ -12,5 +13,16 @@ function FeedbackList({ feedbacks }) {
     </div>
   );
 }
+
+// Adding the type checks of Array of which exact key and its type should be
+FeedbackList.propTypes = {
+  feedbacks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      rating: PropTypes.number.isRequired,
+      text: PropTypes.string.isRequired
+    })
+  )
+};
 
 export default FeedbackList;
