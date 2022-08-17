@@ -9,7 +9,7 @@ import feedbackData from './data/feedbacks';
 import AboutPage from './pages/AboutPage';
 import AboutIconLink from './components/AboutIconLink';
 // import Card from './components/shared/Card';
-// import Post from './components/Post';
+import Post from './components/Post';
 
 function App() {
   const [feedbacks, setFeedbacks] = useState(feedbackData);
@@ -46,6 +46,7 @@ function App() {
           ></Route>
           <Route exact path="/about" element={<AboutPage />} />
           {/* <Route exact path="/post/:id/:name" element={<Post />} /> */}
+          <Route path="/posts/*" element={<Post />} />
         </Routes>
 
         {/*
