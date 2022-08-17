@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import FeedbackList from './components/FeedbackList';
 import FeedbackStats from './components/FeedbackStats';
@@ -28,18 +28,20 @@ function App() {
     <Router>
       <Header text={'FEEDBACK UI'} />
       <div className="container">
-        <Route exact path="/">
-          <FeedbackForm handleAdd={addFeedback} />
-          <FeedbackStats feedbacks={feedbacks} />
-          <FeedbackList feedbacks={feedbacks} handleDelete={deleteFeedback} />
-        </Route>
-        {/* Method 1: of rendering route 
-        <Route exact path="/about">
-          This is some test HTML, we can render a component as well
-        </Route> 
-        */}
-        {/* Method 2: of rendering route */}
-        <Route exact path="/about" component={AboutPage} />
+        <Routes>
+          <Route
+            exact
+            path="/"
+            element={
+              <>
+                <FeedbackForm handleAdd={addFeedback} />
+                <FeedbackStats feedbacks={feedbacks} />
+                <FeedbackList feedbacks={feedbacks} handleDelete={deleteFeedback} />
+              </>
+            }
+          ></Route>
+          <Route exact path="/about" element={<AboutPage />} />
+        </Routes>
       </div>
     </Router>
   );
