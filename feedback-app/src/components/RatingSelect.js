@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import FeedbackContext from '../context/FeedbackContext';
 
 function RatingSelect({ select }) {
   const [selected, setSelected] = useState(10);
+  const { feedbackEdit } = useContext(FeedbackContext);
+
+  useEffect(() => {
+    if (feedbackEdit.edit === true) {
+      setSelected(feedbackEdit.item.rating);
+    }
+  }, [feedbackEdit]);
+
   const handleChange = e => {
-    // console.log(+e.target.value); // we are parsing the target.value to number by adding + in front of it
     setSelected(+e.currentTarget.value);
     select(+e.currentTarget.value);
   };
