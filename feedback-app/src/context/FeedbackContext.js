@@ -18,7 +18,7 @@ export const FeedbackProvider = ({ children }) => {
 
   // 0.) Fetch Data from backend
   const fetchFeedback = async () => {
-    const response = await fetch('http://localhost:4000/feedbacks?_sort=id&_order=desc');
+    const response = await fetch('/feedbacks?_sort=id&_order=desc');
     const data = await response.json();
     setFeedbacks(data);
     setIsLoading(false);
