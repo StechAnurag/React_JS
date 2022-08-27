@@ -13,10 +13,32 @@ export const GithubProvider = ({ children }) => {
 
   const initialState = {
     users: [],
+    user: {},
+    repos: [],
     loading: false
   };
 
   const [state, dispatch] = useReducer(githubReducer, initialState);
+
+  const getUser = async login => {
+    try {
+      setLoading();
+
+      const response = await fetch(`${GITHUB_URL}/users/${login}`, {
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`
+        }
+      });
+
+      if (response.status === 404) return (window.location = '/notfound');
+
+      const data = await response.json();
+
+      dispatch({ type: 'GET_USER', payload: data });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const searchUsers = async text => {
     try {
@@ -60,12 +82,46 @@ export const GithubProvider = ({ children }) => {
     }
   };
 
+  const getUserRepos = async login => {
+    try {
+      setLoading();
+
+      const params = new URLSearchParams({
+        sort: 'created',
+        per_page: 10
+      });
+
+      const response = await fetch(`${GITHUB_URL}/users/${login}/repos?${params}`, {
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`
+        }
+      });
+      const data = await response.json();
+
+      dispatch({ type: 'GET_REPOS', payload: data });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   // setLoading
   const setLoading = () => dispatch({ type: 'SET_LOADING' });
   const clearUsers = () => dispatch({ type: 'CLEAR_USERS' });
 
   return (
-    <GithubContext.Provider value={{ users: state.users, loading: state.loading, fetchUsers, searchUsers, clearUsers }}>
+    <GithubContext.Provider
+      value={{
+        users: state.users,
+        user: state.user,
+        repos: state.repos,
+        loading: state.loading,
+        fetchUsers,
+        searchUsers,
+        clearUsers,
+        getUser,
+        getUserRepos
+      }}
+    >
       {children}
     </GithubContext.Provider>
   );
