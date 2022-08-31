@@ -59,8 +59,8 @@ function SignIn() {
             Forgot Password
           </Link>
 
-          <div className="signUpBar">
-            <p className="signUpText">Sign In</p>
+          <div className="signInBar">
+            <p className="signInText">Sign In</p>
             <button className="signInButton">
               <ArrowRightIcon fill="#ffffff" width="34px" height="34px" />
             </button>
