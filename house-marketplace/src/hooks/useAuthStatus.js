@@ -11,6 +11,7 @@ export const useAuthStatus = () => {
   useEffect(() => {
     if (isMounted.current) {
       const auth = getAuth();
+      // onAuthStateChanged() function checks if user is logged anymore or not?
       onAuthStateChanged(auth, user => {
         if (user) {
           setLoggedIn(true);
