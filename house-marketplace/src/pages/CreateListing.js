@@ -63,7 +63,21 @@ function CreateListing() {
     // eslint-disable-next-line
   }, [isMounted]);
 
-  const onSubmit = e => {
+  const onMutate = e => {
+    // Parse boolean
+    let boolean = null;
+    if (e.target.value === 'true') boolean = true;
+    if (e.target.value === 'false') boolean = false;
+
+    // Files
+    if (e.target.files) setFormData(prevState => ({ ...prevState, images: e.target.files }));
+
+    // Text/Booleans/Numbers
+    const value = /^[0-9]*$/.test(e.target.value) ? +e.target.value : e.target.value;
+    if (!e.target.files) setFormData(prevState => ({ ...prevState, [e.target.id]: boolean ?? value }));
+  };
+
+  const onSubmit = async e => {
     e.preventDefault();
     setLoading(true);
     if (discountedPrice >= regularPrice) {
@@ -88,21 +102,51 @@ function CreateListing() {
       location = address;
     }
 
+    // Store images in firebase
+    const storeImage = async image => {
+      return new Promise((resolve, reject) => {
+        // 1.) Initialize the storage
+        const storage = getStorage();
+
+        // 2.) Create a unique filename
+        const fileName = `${auth.currentUser.uid}-${Date.now()}-${Math.round(Math.random() * 100)}-${image.name}`;
+
+        // 3.) Create a storage reference
+        const storageRef = ref(storage, 'images/' + fileName);
+
+        // 4.) Create an upload Task
+        const uploadTask = uploadBytesResumable(storageRef, image);
+
+        // 5.) Listen for state changes, errors, and completion of the upload.
+        uploadTask.on(
+          'state_changed',
+          snapshot => {
+            // Get task progress, including the number of bytes uploaded / total number of bytes to be uploaded
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+          },
+          error => {
+            reject(error);
+          },
+          () => {
+            // Upload completed successfully, we can get the download URL
+            getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
+              resolve(downloadURL);
+            });
+          }
+        );
+      });
+    };
+
+    const imgUrls = await Promise.all([...images].map(img => storeImage(img))).catch(err => {
+      console.log(err);
+      setLoading(false);
+      toast.error('Image upload failed');
+      return;
+    });
+
+    console.log(imgUrls);
     setLoading(false);
-  };
-
-  const onMutate = e => {
-    // Parse boolean
-    let boolean = null;
-    if (e.target.value === 'true') boolean = true;
-    if (e.target.value === 'false') boolean = true;
-
-    // Files
-    if (e.target.files) setFormData(prevState => ({ ...prevState, images: e.target.files }));
-
-    // Text/Booleans/Numbers
-    const value = /^[0-9]*$/.test(e.target.value) ? +e.target.value : e.target.value;
-    if (!e.target.files) setFormData(prevState => ({ ...prevState, [e.target.id]: boolean ?? value }));
   };
 
   if (loading) return <Spinner />;
