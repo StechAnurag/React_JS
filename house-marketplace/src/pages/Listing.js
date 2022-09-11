@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { db } from '../firebase.config';
 import { getAuth } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import Spinner from '../components/Spinner';
 import shareIcon from '../assets/svg/shareIcon.svg';
 
@@ -68,7 +69,27 @@ function Listing() {
         </ul>
 
         <p className="listingLocationTitle">Location</p>
-        {/* MAP */}
+
+        <div className="leafletContainer">
+          <MapContainer
+            style={{ height: '100%', width: '100%' }}
+            center={[listing.geoLocation.lat, listing.geoLocation.lng]}
+            zoom={13}
+            scrollWheelZoom={false}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            <Marker position={[listing.geoLocation.lat, listing.geoLocation.lng]}>
+              <Popup>
+                {listing.name}
+                <br /> {listing.location}.
+              </Popup>
+            </Marker>
+          </MapContainer>
+        </div>
 
         {auth.currentUser?.uid !== listing.userRef && (
           <Link to={`/contact/${listing.userRef}?listingName=${listing.name}`} className="primaryButton">
@@ -79,5 +100,8 @@ function Listing() {
     </main>
   );
 }
+
+// React Leaflet Issue fix
+// https://stackoverflow.com/questions/67552020/how-to-fix-error-failed-to-compile-node-modules-react-leaflet-core-esm-pat
 
 export default Listing;
