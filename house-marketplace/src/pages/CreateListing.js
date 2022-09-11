@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import { toast } from 'react-toastify';
 
 function CreateListing() {
-  const [geoLocEnabled, setGeoLocEnabled] = useState(true);
+  const [geoLocEnabled, setGeoLocEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -96,6 +97,8 @@ function CreateListing() {
     let location = {};
     if (geoLocEnabled) {
       // use the Google's geocoding API to fetch lat, long for the given address string
+      setGeoLocEnabled(false); // deliberately doing wrong programming on line number 100
+      // since I could not create my google geocoding API credentials, due to payment restrictions
     } else {
       geoLocation.lat = latitude;
       geoLocation.lng = longitude;
@@ -145,8 +148,23 @@ function CreateListing() {
       return;
     });
 
-    console.log(imgUrls);
+    // Save into the firestore database
+    const formDataCopy = {
+      ...formData,
+      imgUrls,
+      geoLocation,
+      timestamp: serverTimestamp()
+    };
+
+    delete formDataCopy.address;
+    delete formDataCopy.images;
+    location && (formDataCopy.location = location); // if there is a location only then add it to formDataCopy
+    !formDataCopy.offer && delete formDataCopy.discountedPrice;
+
+    const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
     setLoading(false);
+    toast.success('Listing added');
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`);
   };
 
   if (loading) return <Spinner />;
