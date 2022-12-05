@@ -1,23 +1,49 @@
 const asyncHandler = require('express-async-handler');
+const User = require('../models/userModel');
+const bcrypt = require('bcryptjs');
+
 // @desc    Register a new user
 // @route   /api/users/register
 // @access  Public
-
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
-    // return res.status(400).json({
-    //   status: 'failed',
-    //   message: 'please include all fields'
-    // });
-
     res.status(400);
     throw new Error('please include all fields');
   }
-  res.status(200).json({
-    status: 'success',
-    message: 'registration successful'
+
+  // 1.) Find if user exists
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    res.status(400);
+    throw new Error('User already exists');
+  }
+
+  // 2.) Hash the password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // 3.) Create a User
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword
   });
+
+  if (user) {
+    return res.status(201).json({
+      status: 'success',
+      message: 'registration successful',
+      data: {
+        id: user._id,
+        name,
+        email
+      }
+    });
+  }
+
+  res.status(400);
+  throw new Error('Invalid user data');
 });
 
 // @desc    Login a user
