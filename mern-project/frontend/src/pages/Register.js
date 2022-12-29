@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { FaUser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { register } from '../redux/auth/authSlice';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -12,15 +14,25 @@ function Register() {
 
   const { name, email, password, password2 } = formData;
 
+  // for dispatching a function call that is the part of global state
+  const dispatch = useDispatch();
+
+  // selecting a piece of global state
+  const { user, isSuccess, isLoading, message } = useSelector(state => state.auth);
+
   const oncChange = e => {
     setFormData(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
   };
 
   const onSubmit = async e => {
     e.preventDefault();
-    if (password !== password2) {
-      toast.error('Passwords do not match');
-    }
+    if (password !== password2) return toast.error('Passwords do not match');
+    const userData = {
+      name,
+      email,
+      password
+    };
+    dispatch(register(userData));
   };
 
   return (
