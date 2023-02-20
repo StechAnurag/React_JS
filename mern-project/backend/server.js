@@ -1,4 +1,5 @@
 const express = require('express');
+const morgan = require('morgan');
 require('dotenv').config();
 const colors = require('colors');
 const { errorHandler } = require('./middlewares/errorMiddleware');
@@ -13,7 +14,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(morgan('dev'));
+
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use(errorHandler);
 
 app.listen(PORT, () => console.log('Server started on port : ' + PORT));

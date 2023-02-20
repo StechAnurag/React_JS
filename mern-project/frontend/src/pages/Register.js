@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUser } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { register } from '../redux/auth/authSlice';
+import { register, reset } from '../redux/auth/authSlice';
+import Spinner from '../components/Spinner';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -16,9 +18,23 @@ function Register() {
 
   // for dispatching a function call that is the part of global state
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // selecting a piece of global state
-  const { user, isSuccess, isLoading, message } = useSelector(state => state.auth);
+  const { user, isSuccess, isError, isLoading, message } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    // Redirect in case of success
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isSuccess, isError, message, navigate, dispatch]);
 
   const oncChange = e => {
     setFormData(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
@@ -34,6 +50,10 @@ function Register() {
     };
     dispatch(register(userData));
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
