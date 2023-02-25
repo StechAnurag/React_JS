@@ -19,7 +19,7 @@ const getNotes = asyncHandler(async (req, res) => {
 
   const notes = await Note.find({ ticket: req.params.ticketId });
 
-  res.status(200).json(notes);
+  res.status(200).json({ status: 'success', statusCode: 200, message: 'fetched all notes', data: notes });
 });
 
 // @desc    Create ticket note
@@ -40,7 +40,7 @@ const addNote = asyncHandler(async (req, res) => {
     user: req.user.id
   });
 
-  res.status(200).json(note);
+  res.status(200).json({ status: 'success', statusCode: 200, message: 'fetched all notes', data: note });
 });
 
 module.exports = {
